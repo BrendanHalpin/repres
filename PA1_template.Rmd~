@@ -1,6 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-Brendan Halpin
 
 ## Loading and preprocessing the data
 
@@ -50,13 +49,9 @@ plot(cbind(int,slotstep), type="l")
 The busiest time of day is in the morning. The single busiest slot (and its value) is given by this code:
 
 ```{r}
-maxact <- max(slotstep)
-busytime <- intday[slotstep==maxact]
-busytime
-maxact
+intday[slotstep==max(slotstep)]
+max(slotstep)
 ```
-
-As we see, the busiest time of day is `r busytime` when `r maxact` steps are taken.
 
 ## Imputing missing values
 

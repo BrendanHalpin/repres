@@ -75,7 +75,9 @@ The busiest time of day is in the morning. The single busiest slot (and its valu
 
 
 ```r
-intday[slotstep == max(slotstep)]
+maxact <- max(slotstep)
+busytime <- intday[slotstep == maxact]
+busytime
 ```
 
 ```
@@ -83,13 +85,15 @@ intday[slotstep == max(slotstep)]
 ```
 
 ```r
-max(slotstep)
+maxact
 ```
 
 ```
 ## [1] 10927
 ```
 
+
+As we see, the busiest time of day is 835 when 10927 steps are taken.
 
 ## Imputing missing values
 

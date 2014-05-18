@@ -246,17 +246,21 @@ plot(cbind(int, slotstep), type = &quot;l&quot;)
 
 <p>The busiest time of day is in the morning. The single busiest slot (and its value) is given by this code:</p>
 
-<pre><code class="r">intday[slotstep == max(slotstep)]
+<pre><code class="r">maxact &lt;- max(slotstep)
+busytime &lt;- intday[slotstep == maxact]
+busytime
 </code></pre>
 
 <pre><code>## [1] 835
 </code></pre>
 
-<pre><code class="r">max(slotstep)
+<pre><code class="r">maxact
 </code></pre>
 
 <pre><code>## [1] 10927
 </code></pre>
+
+<p>As we see, the busiest time of day is 835 when 10927 steps are taken.</p>
 
 <h2>Imputing missing values</h2>
 
