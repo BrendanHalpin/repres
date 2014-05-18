@@ -1,0 +1,128 @@
+# Reproducible Research: Peer Assessment 1
+
+
+## Loading and preprocessing the data
+
+Unzip the data, load it and attach the data set.
+
+```{r}
+unzip("activity.zip")
+library(foreign)
+stepsdata <- read.csv("activity.csv")
+attach(stepsdata)
+```
+
+## What is mean total number of steps taken per day?
+
+To calculate the mean steps per day we use the aggregate function.
+
+```{r}
+daystep <- aggregate(steps, by=list(date),FUN=sum)[,2]
+mean(daystep, na.rm=TRUE)
+median(daystep, na.rm=TRUE)
+```
+
+A fuller view of the distribution is provided by the histogram.
+
+```{r}
+hist(daystep,breaks=10)
+```
+
+## What is the average daily activity pattern?
+
+The within-day pattern is also interesting. To look at this we aggregate by the 5-minute observation unit.
+
+```{r}
+slotstep  <- aggregate(steps ~ interval, FUN=sum)[,2]
+```
+
+To plot this as a time series, we need a single day's worth of 5-minute
+observation units, which we also convert into decimal time (i.e., 1230
+becomes 12.5) to avoid jumps on the x-axis.
+
+```{r}
+intday <- interval[1:288]
+int <- floor(intday/100) + (intday %% 100)/60
+plot(cbind(int,slotstep), type="l")
+```
+
+The busiest time of day is in the morning. The single busiest slot (and its value) is given by this code:
+
+```{r}
+intday[slotstep==max(slotstep)]
+max(slotstep)
+```
+
+## Imputing missing values
+
+A substantial amount of cases are missing data on the number of steps (but not on the other variable):
+
+```{r}
+sum(is.na(date))
+sum(is.na(interval))
+sum(is.na(steps))
+```
+
+We replace the missing values with the average observed value for the
+corresponding time-slot. First we create a vector of mean values per
+time-slot, and then replicate it to match the 61 days of observation:
+
+```{r}
+meanstep  <- aggregate(steps ~ interval, FUN=mean)[,2]
+longmean <- rep(meanstep, 61)
+```
+
+We now create a new vector, stepsi, as a copy of steps, replacing
+missing values with the corresponding mean:
+```{r}
+stepsi <-  steps
+stepsi[is.na(stepsi)] <- longmean[is.na(stepsi)]
+```
+
+A histogram of the imputed data:
+```{r}
+daystepi <- aggregate(stepsi, by=list(date),FUN=sum)[,2]
+hist(daystepi,breaks=10)
+```
+
+If we compare means and medians of the raw and imputed data we see that
+imputing by mean values makes no difference to the daily means, but
+changes the median slightly:
+```{r}
+mean(daystep, na.rm=TRUE)
+mean(daystepi)
+median(daystep, na.rm=TRUE)
+median(daystepi)
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+What are the differences between weekdays and weekends? To address this
+we calculate the average per 5-min time-unit across weekdays and
+weekends separately
+
+First we identify weekends and subset the data:
+```{r}
+wd <- strptime(date, "%Y-%m-%d")
+weekend <- as.factor(weekdays(wd) == "Saturday" | weekdays(wd) == "Sunday")
+steps1 <- subset(stepsi, weekend==FALSE)
+steps2 <- subset(stepsi, weekend==TRUE)
+```
+Then we convert the within-day time-stamp to decimal and subset that:
+```{r}
+inter <- floor(interval/100) + (interval %% 100)/60
+int1 <- subset(inter, weekend==FALSE)
+int2 <- subset(inter, weekend==TRUE)
+```
+
+Then we plot the two series, aggregating over the time-stamp:
+```{r}
+par(mfrow=c(2,1))
+
+plot(aggregate(steps1 ~ int1, FUN=sum), type="l")
+plot(aggregate(steps2 ~ int2, FUN=sum), type="l")
+```
+
+As is evident, weekdays are busier, with an earlier start, a distinct
+peak at breakfast/commute time, and a generally higher pattern
+throughout the rest of the day. 
